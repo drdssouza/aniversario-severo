@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: torneio-pg
+    environment:
+      POSTGRES_PASSWORD: torneio
+      POSTGRES_DB: torneio_severo
+    ports:
+      - "5432:5432"
+    volumes:
+      - torneio_pg_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  torneio_pg_data:

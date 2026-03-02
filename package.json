@@ -1,0 +1,13 @@
+{
+  "name": "torneio-severo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd backend && node src/index.js",
+    "postinstall": "npm run install:all 2>/dev/null || true"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build)",
+      "Bash(node --version)",
+      "Bash(npm --version)",
+      "Bash(psql --version)",
+      "Bash(docker --version)",
+      "Bash(docker run -d --name torneio-pg -e POSTGRES_PASSWORD=torneio -e POSTGRES_DB=torneio_severo -p 5432:5432 postgres:16-alpine)"
+    ]
+  }
+}
