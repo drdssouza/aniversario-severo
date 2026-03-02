@@ -27,12 +27,23 @@ const MODES = [
 
 const GROUP_LETTERS = ['A','B','C','D','E','F','G','H','I','J'];
 
+/** Remove numeração no início da linha: "1-", "14 -", "2.", "3)" etc. */
+function parseNameList(text) {
+  return text
+    .split('\n')
+    .map((line) => line.replace(/^\s*\d+\s*[-.)]\s*/, '').trim())
+    .filter(Boolean);
+}
+
 export default function SetupPage() {
   const { tournament, teams, players, refresh } = useTournament();
   const navigate = useNavigate();
 
   const [mode, setMode] = useState(tournament?.setup_mode ?? null);
   const [step, setStep] = useState(mode ? 2 : 1);
+
+  const [bulkText, setBulkText] = useState('');
+  const [bulkLoading, setBulkLoading] = useState(false);
 
   const [playerInput, setPlayerInput] = useState('');
   const playerInputRef = useRef(null);
@@ -44,6 +55,23 @@ export default function SetupPage() {
   const [loading, setLoading] = useState(false);
   const [drawLoading, setDrawLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const parsedNames = parseNameList(bulkText);
+
+  const handleAddBulk = async () => {
+    if (!parsedNames.length) return;
+    setBulkLoading(true);
+    setError('');
+    try {
+      await addPlayers(parsedNames);
+      setBulkText('');
+      await refresh();
+    } catch {
+      setError('Erro ao adicionar jogadores.');
+    } finally {
+      setBulkLoading(false);
+    }
+  };
 
   const handleSelectMode = async (selectedMode) => {
     setLoading(true);
@@ -170,16 +198,53 @@ export default function SetupPage() {
           {/* Individual mode */}
           {mode === 'individual' && (
             <div>
-              <div className="flex gap-2 mb-1">
+              {/* Bulk paste */}
+              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-4">
+                <p className="text-xs text-zinc-500 font-medium mb-2">
+                  Cole a lista de jogadores
+                </p>
+                <textarea
+                  className="w-full bg-zinc-800 border border-zinc-700 text-zinc-100
+                             placeholder-zinc-600 rounded-lg px-3 py-2.5 text-sm leading-relaxed
+                             focus:outline-none focus:border-zinc-500 transition-colors resize-none"
+                  rows={6}
+                  placeholder={"1- Mikael\n2- Renan\n3- Henrique\n..."}
+                  value={bulkText}
+                  onChange={(e) => setBulkText(e.target.value)}
+                  autoFocus
+                />
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-xs text-zinc-600">
+                    {parsedNames.length > 0 ? `${parsedNames.length} nome${parsedNames.length !== 1 ? 's' : ''} detectado${parsedNames.length !== 1 ? 's' : ''}` : 'Cole a lista acima'}
+                  </span>
+                  <button
+                    className="px-4 py-2 bg-white text-zinc-950 text-sm font-semibold rounded-lg
+                               hover:bg-zinc-100 transition-colors disabled:opacity-40"
+                    onClick={handleAddBulk}
+                    disabled={parsedNames.length === 0 || bulkLoading}
+                  >
+                    {bulkLoading ? 'Adicionando...' : 'Adicionar todos'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Divider */}
+              {players.length > 0 && (
+                <p className="text-xs text-zinc-600 mb-3">
+                  Ou adicione um por um:
+                </p>
+              )}
+
+              {/* Single add */}
+              <div className="flex gap-2 mb-4">
                 <input
                   ref={playerInputRef}
                   type="text"
                   className="input flex-1"
-                  placeholder="Nome do jogador"
+                  placeholder="Adicionar jogador avulso"
                   value={playerInput}
                   onChange={(e) => setPlayerInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleAddPlayer()}
-                  autoFocus
                 />
                 <button
                   className="px-4 bg-zinc-800 border border-zinc-700 text-zinc-200 rounded-lg
@@ -189,8 +254,8 @@ export default function SetupPage() {
                   +
                 </button>
               </div>
-              <p className="text-xs text-zinc-600 mb-4">Enter para adicionar</p>
 
+              {/* Player list */}
               <AnimatePresence initial={false}>
                 {players.map((p) => (
                   <motion.div
