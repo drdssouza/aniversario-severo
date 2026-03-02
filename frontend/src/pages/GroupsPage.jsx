@@ -137,30 +137,31 @@ function MatchRow({ match, onScore, readOnly }) {
   const done = match.status === 'completed';
   const t1Won = done && match.winner_id === match.team1_id;
   const t2Won = done && match.winner_id === match.team2_id;
+  const clickable = !readOnly;
 
   return (
     <button
       className={`w-full flex items-center gap-3 px-4 py-3 border-t border-zinc-800
                   text-left transition-colors touch-manipulation
-                  ${!done && !readOnly ? 'hover:bg-zinc-800/50 active:bg-zinc-800' : 'cursor-default'}`}
-      onClick={() => !done && !readOnly && onScore()}
+                  ${clickable ? 'hover:bg-zinc-800/50 active:bg-zinc-800' : 'cursor-default'}`}
+      onClick={() => clickable && onScore()}
       disabled={readOnly}
     >
       {/* Team 1 */}
-      <span className={`flex-1 text-sm truncate ${t1Won ? 'text-zinc-100 font-semibold' : done ? 'text-zinc-500' : 'text-zinc-300'}`}>
+      <span className={`flex-1 text-sm truncate ${t1Won ? 'text-zinc-100 font-semibold' : done ? 'text-zinc-400' : 'text-zinc-300'}`}>
         {match.team1_name}
       </span>
 
       {/* Score / vs */}
       <span className="flex-shrink-0 text-sm font-mono w-14 text-center">
         {done
-          ? <span className="font-bold text-zinc-100">{match.team1_games} <span className="text-zinc-600 font-normal">–</span> {match.team2_games}</span>
+          ? <span className="font-bold text-zinc-100">{match.team1_games}<span className="text-zinc-600 font-normal mx-0.5">–</span>{match.team2_games}</span>
           : <span className="text-zinc-600">vs</span>
         }
       </span>
 
       {/* Team 2 */}
-      <span className={`flex-1 text-sm truncate text-right ${t2Won ? 'text-zinc-100 font-semibold' : done ? 'text-zinc-500' : 'text-zinc-300'}`}>
+      <span className={`flex-1 text-sm truncate text-right ${t2Won ? 'text-zinc-100 font-semibold' : done ? 'text-zinc-400' : 'text-zinc-300'}`}>
         {match.team2_name}
       </span>
     </button>

@@ -91,16 +91,17 @@ export default function BracketPage() {
 }
 
 function MatchCard({ match, num, phase, onScore }) {
-  const done   = match.status === 'completed';
-  const isBye  = match.status === 'bye';
-  const t1Won  = done && match.winner_id === match.team1_id;
-  const t2Won  = done && match.winner_id === match.team2_id;
-  const canScore = !isBye && !done && match.team1_id && match.team2_id;
-  const waiting  = !isBye && !done && (!match.team1_id || !match.team2_id);
+  const done     = match.status === 'completed';
+  const isBye    = match.status === 'bye';
+  const t1Won    = done && match.winner_id === match.team1_id;
+  const t2Won    = done && match.winner_id === match.team2_id;
+  const hasTeams = match.team1_id && match.team2_id;
+  const canScore = !isBye && hasTeams;   // allow editing even after done
+  const waiting  = !isBye && !hasTeams;
 
   return (
     <div
-      className={`bg-zinc-900 border rounded-xl overflow-hidden transition-colors ${
+      className={`bg-zinc-900 border rounded-xl overflow-hidden ${
         phase === 'Final' ? 'border-zinc-600' : 'border-zinc-800'
       }`}
     >
@@ -110,14 +111,13 @@ function MatchCard({ match, num, phase, onScore }) {
           {phase === 'Final' ? 'Final' : `Jogo ${num}`}
           {isBye && <span className="ml-2 text-zinc-600">· bye</span>}
         </span>
-        {done && <span className="text-xs text-green-500">encerrado</span>}
         {waiting && <span className="text-xs text-zinc-600">aguardando</span>}
         {canScore && (
           <button
             className="text-xs text-zinc-400 hover:text-zinc-200 transition-colors font-medium"
             onClick={onScore}
           >
-            Inserir placar
+            {done ? 'Editar placar' : 'Inserir placar'}
           </button>
         )}
       </div>
